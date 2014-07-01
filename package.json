@@ -18,7 +18,8 @@
   "author": "Richard Rodger (http://richardrodger.com)",
   "license": "MIT",
   "dependencies": {
-    "fivebeans": "~1.1.1",
+    "fivebeans": "^1.1.1",
+    "nid": "^0.3.2",
     "underscore": "~1.6.0"
   },
   "peerDependencies": {

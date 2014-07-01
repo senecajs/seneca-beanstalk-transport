@@ -10,6 +10,7 @@ var stream = require('stream')
 
 var _         = require('underscore')
 var fivebeans = require('fivebeans')
+var nid       = require('nid')
 
 
 module.exports = function( options ) {
@@ -47,6 +48,16 @@ module.exports = function( options ) {
 
 
 
+  function handle_listen_error( err ) {
+    seneca.die('listen',err)
+  }
+
+
+  function handle_client_error( err ) {
+    seneca.die('client',err)
+  }
+
+
   function hook_listen_beanstalk( args, done ) {
     var seneca         = this
     var type           = args.type
@@ -54,13 +65,13 @@ module.exports = function( options ) {
 
     tu.listen_topics( seneca, args, listen_options, function(topic) {
 
-      var beanstalk_out = make_fivebeans( listen_options )
+      var beanstalk_out = make_fivebeans( listen_options, 'listen-out' )
 
       beanstalk_out
         .on('connect', function() {
           beanstalk_out.use( topic+'_res', function(err, numwatched) {
-            if( err ) return fivebeans_use_error(seneca,'client',topic,
-                                                 listen_options,err);
+            if( err ) return handle_listen_error(err);
+
             seneca.log.info('listen', 'connect', 'out', topic, 
                             listen_options, seneca)
           })
@@ -69,25 +80,20 @@ module.exports = function( options ) {
       connect_fivebeans( seneca, beanstalk_out, 'listen', 'out', 
                          topic, listen_options )
 
-      var beanstalk_in = make_fivebeans( listen_options )
+      var beanstalk_in = make_fivebeans( listen_options, 'listen-in' )
 
       beanstalk_in
         .on('connect', function() {
           var acttopic = topic+'_act'
 
           beanstalk_in.watch(acttopic, function(err, numwatched) {
-            if( err ) {
-              return seneca.log.error('listen', 'watch', 'in', acttopic, 
-                                      listen_options, seneca, err.stack||err)
-            }
+            if( err ) return handle_listen_error(err);
 
             function do_reserve() {
+              if( beanstalk_in.closed$ ) return;
+
               beanstalk_in.reserve(function(err, jobid, payload) {
-                if( err ) {
-                  return seneca.log.error('listen', 'reserve', 'in', acttopic, 
-                                          jobid, payload, 
-                                          listen_options, seneca, err.stack||err)
-                }
+                if( err ) return handle_listen_error(err);
 
                 var data = tu.parseJSON( seneca, 'listen-'+type, payload )
                 if( data ) {
@@ -99,20 +105,10 @@ module.exports = function( options ) {
                     beanstalk_out.put(
                       100,0,listen_options.alivetime,
                       outstr, function(err,outjobid) {
-                        if( err ) {
-                          return seneca.log.error(
-                            'listen', 'put', 'in', acttopic, 
-                            outjobid, payload, outstr, 
-                            listen_options, seneca, err.stack||err)
-                        }
+                        if( err ) return handle_listen_error(err);
 
                         beanstalk_in.destroy(jobid, function(err) {
-                          if( err ) {
-                            return seneca.log.error(
-                              'listen', 'destroy', 'in', acttopic, 
-                              jobid, payload, outstr, 
-                              listen_options, seneca, err.stack||err)
-                          }
+                          if( err ) return handle_listen_error(err);
 
                           process.nextTick(do_reserve)
                         })
@@ -145,20 +141,20 @@ module.exports = function( options ) {
     tu.make_client( make_send, client_options, clientdone )
 
     function make_send( spec, topic, send_done ) {
-      var beanstalk_in = make_fivebeans( client_options )
+      var beanstalk_in = make_fivebeans( client_options, 'client-in' )
 
       beanstalk_in
         .on('connect', function() {
           var restopic = topic+'_res'
-          var errhandler = 
-                make_errhandler(seneca,'client','in',restopic,client_options)
 
           beanstalk_in.watch(restopic, function(err, numwatched) {
-            if( err ) return errhandler('watch',err);
+            if( err ) return handle_client_error(err);
 
             function do_reserve() {
+              if( beanstalk_in.closed$ ) return;
+
               beanstalk_in.reserve(function(err, jobid, payload) {
-                if( err ) errhandler('reserve',err,jobid,payload);
+                if( err ) return handle_client_error(err);
 
                 var data = tu.parseJSON( seneca, 'client-'+type, payload )
                 if( data ) {
@@ -166,13 +162,15 @@ module.exports = function( options ) {
                   
                   if( complete ) {
                     beanstalk_in.destroy(jobid,function(err) {
-                      if( err ) errhandler('destroy',err,jobid,payload);
+                      if( err ) return handle_client_error(err);
+
                       process.nextTick(do_reserve)
                     })
                   }
                   else {
                     beanstalk_in.release(jobid,100,0,function(err) {
-                      if( err ) errhandler('release',err,jobid,payload);
+                      if( err ) return handle_client_error(err);
+
                       process.nextTick(do_reserve)
                     })
                   }
@@ -185,33 +183,41 @@ module.exports = function( options ) {
           })
         })
 
-      connect_fivebeans( seneca, beanstalk_in, 'listen', 'in', 
+      connect_fivebeans( seneca, beanstalk_in, 'client', 'in', 
                          topic, client_options )
 
 
+      var client
 
-      var beanstalk_out = make_fivebeans( client_options )
+      var beanstalk_out = make_fivebeans( client_options, 'client-out' )
 
       beanstalk_out
         .on('connect', function() {
           beanstalk_out.use(topic+'_act', function(err, numwatched) {
-            if( err ) return send_done(err);
+            if( err ) return handle_client_error(err);
 
-            var client = function( args, done ) {
+            var firsttime = !client
+
+            client = function( args, done ) {
               var outmsg = tu.prepare_request( this, args, done )
               var outstr = tu.stringifyJSON( seneca, 'client-beanstalk', outmsg )
 
-              beanstalk_out.put(100,0,111,outstr, function(err,outjobid){
-                if( err ) {
-                  return seneca.log.error(
-                    'client', 'put', 'out', topic+'_act', 
-                    outjobid, outstr, 
-                    client_options, seneca, err.stack||err)
-                }
+              try {
+                beanstalk_out.put(100,0,111,outstr, function(err,outjobid){
+                  if( err ) return handle_client_error(err);
+                })
+              }
+              catch(e) {
+                handle_client_error(e);
+              }
+            }
+            client.id$ = nid()
+            
+            if( firsttime ) {
+              send_done(null,function(args,done){
+                client.call(this,args,done)
               })
             }
-
-            send_done(null,client)
           })
         })
 
@@ -222,36 +228,38 @@ module.exports = function( options ) {
 
 
 
-  function make_fivebeans( opts ) {
-    return new fivebeans.client( opts.host, opts.port )
+  function make_fivebeans( opts, note ) {
+    var client = new fivebeans.client( opts.host, opts.port )
+    client.id$   = nid()
+    client.note$ = note
+    return client;
   }
 
 
   function connect_fivebeans( seneca, instance, position, direction, topic, opts ) {
     instance
       .on('error', function(err) { 
-        seneca.log.error( position, 'error', direction, topic, 
-                          opts, seneca, err.stack||err)
+        if( 'listen' == position ) {
+          handle_listen_error(err)
+        }
+        else {
+          handle_client_error(err)
+        }
+
       })
       .on('close', function() { 
         seneca.log.error( position, 'close', direction, topic, 
                           opts, seneca)
       })
       .connect()
-  }
 
+    seneca.add('role:seneca,cmd:close',function( close_args, done ) {
+      var closer = this
 
-  function fivebeans_use_error( seneca, position, topic, opts, err ) {
-    seneca.log.error(position, 'use', 'out', topic, 
-                     opts, seneca, err.stack||err)
-  }
-
-
-  function make_errhandler( seneca, position, direction, fulltopic, opts ) {
-    return function( what, err, xtra0, xtra1 ) {
-      seneca.log.error( position, direction, what, fulltopic, 
-                        opts, seneca, xtra0, xtra1, (err&&err.stack)||err)
-    }
+      instance.closed$ = true
+      instance.end()
+      closer.prior(close_args,done)
+    })
   }
 
 
