@@ -9,8 +9,12 @@ var test = require('seneca-transport-test')
 
 describe('beanstalk-transport', function() {
 
-  it('happy', function( fin ) {
-    test.foo_test( require, fin, 'beanstalk' )
+  it('happy-any', function( fin ) {
+    test.foo_test( 'beanstalk-transport', require, fin, 'beanstalk', -11300 )
+  })
+
+  it('happy-pin', function( fin ) {
+    test.foo_pintest( 'beanstalk-transport', require, fin, 'beanstalk', -11300 )
   })
 
 })
