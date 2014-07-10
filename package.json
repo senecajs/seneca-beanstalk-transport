@@ -1,6 +1,6 @@
 {
   "name": "seneca-beanstalk-transport",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Seneca beanstalk transport",
   "main": "beanstalk-transport.js",
   "scripts": {
