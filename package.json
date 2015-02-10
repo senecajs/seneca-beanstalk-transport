@@ -1,6 +1,6 @@
 {
   "name": "seneca-beanstalk-transport",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Seneca beanstalk transport",
   "main": "beanstalk-transport.js",
   "scripts": {
@@ -18,16 +18,13 @@
   "author": "Richard Rodger (http://richardrodger.com)",
   "license": "MIT",
   "dependencies": {
-    "fivebeans": "^1.1.1",
-    "nid": "^0.3.2",
-    "underscore": "~1.6.0"
-  },
-  "peerDependencies": {
-    "seneca": "*"
+    "fivebeans": "~1.1.1",
+    "nid": "~0.3.2",
+    "lodash": "~2.4.1"
   },
   "devDependencies": {
-    "mocha": "~1.20.1",
-    "seneca": "~0.5.17",
+    "mocha": "~2.1.0",
+    "seneca": "plugin",
     "seneca-transport-test": "~0.1.2"
   },
   "files": [
