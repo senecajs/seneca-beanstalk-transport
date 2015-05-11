@@ -56,7 +56,7 @@ module.exports = function( options ) {
         seneca.log.error( type, tag, note, err, 'CLOSED' )
       }
       else {
-        seneca.die( 'beanstalk', err, {type:type, tag:tag, note:note} )
+        seneca.die( err, 'beanstalk', {type:type, tag:tag, note:note} )
       }
     }
   }
@@ -67,9 +67,7 @@ module.exports = function( options ) {
     var type           = args.type
     var listen_options = seneca.util.clean(_.extend({},options[type],args))
 
-    
     tu.listen_topics( seneca, args, listen_options, function(topic) {
-
       var beanstalk_out = make_fivebeans( listen_options, 'listen-out' )
       var out_err       = make_error_handler( type, 'listen-out', beanstalk_out )
 
@@ -200,7 +198,7 @@ module.exports = function( options ) {
         })
 
       connect_fivebeans( seneca, beanstalk_in, 'client', 'in', 
-                         topic, client_options )
+                         topic, client_options, in_err )
 
 
       var client
@@ -264,13 +262,7 @@ module.exports = function( options ) {
                               topic, opts, errhandler ) {
     instance
       .on('error', function(err) { 
-        if( 'listen' == position ) {
-          errhandler(err)
-        }
-        else {
-          errhandler(err)
-        }
-
+        errhandler && errhandler(err)
       })
       .on('close', function() { 
         seneca.log.error( position, 'close', direction, topic, 
