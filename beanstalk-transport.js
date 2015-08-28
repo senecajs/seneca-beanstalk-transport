@@ -33,15 +33,15 @@ module.exports = function( options ) {
     },
     so.transport,
     options)
-  
+
 
   var tu = seneca.export('transport/utils')
 
 
-  seneca.add({role:'transport',hook:'listen',type:'beanstalk'}, 
+  seneca.add({role:'transport',hook:'listen',type:'beanstalk'},
              hook_listen_beanstalk)
 
-  seneca.add({role:'transport',hook:'client',type:'beanstalk'}, 
+  seneca.add({role:'transport',hook:'client',type:'beanstalk'},
              hook_client_beanstalk)
 
   // Legacy patterns
@@ -76,12 +76,12 @@ module.exports = function( options ) {
           beanstalk_out.use( topic+'_res', function(err, numwatched) {
             if( err ) return out_err('use',err);
 
-            seneca.log.info('listen', 'connect', 'out', topic, 
+            seneca.log.info('listen', 'connect', 'out', topic,
                             listen_options, seneca)
           })
         })
 
-      connect_fivebeans( seneca, beanstalk_out, 'listen', 'out', 
+      connect_fivebeans( seneca, beanstalk_out, 'listen', 'out',
                          topic, listen_options, out_err )
 
       var beanstalk_in = make_fivebeans( listen_options, 'listen-in' )
@@ -111,7 +111,7 @@ module.exports = function( options ) {
                       listen_options.priority,
                       listen_options.delay,
                       listen_options.alivetime,
-                      outstr, 
+                      outstr,
                       function(err,outjobid) {
                         if( err ) return out_err('put',err);
 
@@ -126,14 +126,14 @@ module.exports = function( options ) {
                 else {
                   return process.nextTick(do_reserve)
                 }
-              })                
+              })
             }
             do_reserve()
 
           })
         })
 
-      connect_fivebeans( seneca, beanstalk_in, 'listen', 'in', 
+      connect_fivebeans( seneca, beanstalk_in, 'listen', 'in',
                          topic, listen_options, in_err )
     })
 
@@ -169,7 +169,7 @@ module.exports = function( options ) {
                 var data = tu.parseJSON( seneca, 'client-'+type, payload )
                 if( data ) {
                   var complete = tu.handle_response( seneca, data, client_options )
-                  
+
                   if( complete ) {
                     beanstalk_in.destroy(jobid,function(err) {
                       if( err ) return in_err('destroy/'+jobid,err)
@@ -190,14 +190,14 @@ module.exports = function( options ) {
                   }
                 }
                 else process.nextTick(do_reserve);
-              })                
+              })
             }
             do_reserve()
 
           })
         })
 
-      connect_fivebeans( seneca, beanstalk_in, 'client', 'in', 
+      connect_fivebeans( seneca, beanstalk_in, 'client', 'in',
                          topic, client_options, in_err )
 
 
@@ -224,7 +224,7 @@ module.exports = function( options ) {
                   client_options.priority,
                   client_options.delay,
                   client_options.alivetime,
-                  outstr, 
+                  outstr,
                   function(err,outjobid){
                     if( err ) return out_err('put/'+outjobid,err);
                   })
@@ -234,7 +234,7 @@ module.exports = function( options ) {
               }
             }
             client.id$ = nid()
-            
+
             if( firsttime ) {
               send_done(null,function(args,done){
                 client.call(this,args,done)
@@ -243,10 +243,10 @@ module.exports = function( options ) {
           })
         })
 
-      connect_fivebeans( seneca, beanstalk_out, 'client', 'out', 
+      connect_fivebeans( seneca, beanstalk_out, 'client', 'out',
                          topic, client_options, out_err )
     }
-  }  
+  }
 
 
 
@@ -258,14 +258,14 @@ module.exports = function( options ) {
   }
 
 
-  function connect_fivebeans( seneca, instance, position, direction, 
+  function connect_fivebeans( seneca, instance, position, direction,
                               topic, opts, errhandler ) {
     instance
-      .on('error', function(err) { 
+      .on('error', function(err) {
         errhandler && errhandler(err)
       })
-      .on('close', function() { 
-        seneca.log.error( position, 'close', direction, topic, 
+      .on('close', function() {
+        seneca.log.error( position, 'close', direction, topic,
                           opts, seneca)
       })
       .connect()
