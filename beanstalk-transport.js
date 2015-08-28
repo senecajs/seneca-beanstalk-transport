@@ -70,17 +70,6 @@ module.exports = function( options ) {
     tu.listen_topics( seneca, args, listen_options, function(topic) {
       var beanstalk_out = make_fivebeans( listen_options, 'listen-out' )
       var out_err       = make_error_handler( type, 'listen-out', beanstalk_out )
-      var restopic = topic+'_res';
-
-      beanstalk_out
-        .on('connect', function() {
-          beanstalk_out.use(restopic, function(err, numwatched) {
-            if( err ) return out_err('use',err);
-
-            seneca.log.info('listen', 'connect', 'out', topic,
-                            listen_options, seneca)
-          })
-        })
 
       connect_fivebeans( seneca, beanstalk_out, 'listen', 'out',
                          topic, listen_options, out_err )
@@ -108,20 +97,28 @@ module.exports = function( options ) {
 
                     var outstr = tu.stringifyJSON( seneca, 'listen-'+type, out )
 
-                    beanstalk_out.put(
-                      listen_options.priority,
-                      listen_options.delay,
-                      listen_options.alivetime,
-                      outstr,
-                      function(err,outjobid) {
-                        if( err ) return out_err('put',err);
+                    var restopic = topic+'_res';
+                    beanstalk_out.use(restopic, function(err, numwatched) {
+                      if( err ) return out_err('use',err);
 
-                        beanstalk_in.destroy(jobid, function(err) {
-                          if( err ) return in_err('destroy/'+jobid,err);
+                      seneca.log.info('listen', 'connect', 'out', topic,
+                                      listen_options, seneca)
 
-                          process.nextTick(do_reserve)
+                      beanstalk_out.put(
+                        listen_options.priority,
+                        listen_options.delay,
+                        listen_options.alivetime,
+                        outstr,
+                        function(err,outjobid) {
+                          if( err ) return out_err('put',err);
+
+                          beanstalk_in.destroy(jobid, function(err) {
+                            if( err ) return in_err('destroy/'+jobid,err);
+
+                            process.nextTick(do_reserve)
+                          })
                         })
-                      })
+                    })
                   })
                 }
                 else {
