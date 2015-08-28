@@ -70,10 +70,11 @@ module.exports = function( options ) {
     tu.listen_topics( seneca, args, listen_options, function(topic) {
       var beanstalk_out = make_fivebeans( listen_options, 'listen-out' )
       var out_err       = make_error_handler( type, 'listen-out', beanstalk_out )
+      var restopic = topic+'_res';
 
       beanstalk_out
         .on('connect', function() {
-          beanstalk_out.use( topic+'_res', function(err, numwatched) {
+          beanstalk_out.use(restopic, function(err, numwatched) {
             if( err ) return out_err('use',err);
 
             seneca.log.info('listen', 'connect', 'out', topic,
