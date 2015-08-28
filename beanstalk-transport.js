@@ -97,7 +97,7 @@ module.exports = function( options ) {
 
                     var outstr = tu.stringifyJSON( seneca, 'listen-'+type, out )
 
-                    var restopic = topic+'_res';
+                    var restopic = topic+'_res/'+data.origin;
                     beanstalk_out.use(restopic, function(err, numwatched) {
                       if( err ) return out_err('use',err);
 
@@ -153,7 +153,7 @@ module.exports = function( options ) {
 
       beanstalk_in
         .on('connect', function() {
-          var restopic = topic+'_res'
+          var restopic = topic+'_res/'+seneca.id;
 
           beanstalk_in.watch(restopic, function(err, numwatched) {
             if( err ) return in_err('watch/'+restopic,err);
