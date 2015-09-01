@@ -17,4 +17,8 @@ describe('beanstalk-transport', function() {
     test.foo_pintest( 'beanstalk-transport', require, fin, 'beanstalk', -11300 )
   })
 
+  it('happy-multiple-origin', function( fin ) {
+    test.multiple_origin_test( 'beanstalk-transport', require, fin, 'beanstalk', -11300 )
+  })
+
 })

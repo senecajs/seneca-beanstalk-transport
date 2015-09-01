@@ -176,15 +176,20 @@ module.exports = function( options ) {
                     })
                   }
                   else {
-                    beanstalk_in.release(
-                      jobid,
-                      client_options.priority,
-                      client_options.delay,
-                      function(err) {
-                        if( err ) return in_err('release/'+jobid,err)
+                    if (options.retry === false) {
+                      return in_err('retry/'+jobid, new Error('Not retrying'));
+                    }
+                    else {
+                      beanstalk_in.release(
+                        jobid,
+                        client_options.priority,
+                        client_options.delay,
+                        function(err) {
+                          if( err ) return in_err('release/'+jobid,err)
 
-                        process.nextTick(do_reserve)
-                      })
+                          process.nextTick(do_reserve)
+                        })
+                    }
                   }
                 }
                 else process.nextTick(do_reserve);
