@@ -1,4 +1,7 @@
-sudo: false
+sudo: true
+before_install:
+	- sudo apt-get update -qq
+	- sudo apt-get install -qq beanstalkd
 language: node_js
 node_js:
   - 0.10
