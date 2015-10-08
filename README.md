@@ -9,7 +9,7 @@
 
 - __Version:__ 0.2.1
 - __Tested on:__ Seneca 0.7.1
-- __Node:__ 0.10, 0.12, 4
+- __Node:__ 0.10, 0.11, 0.12, 4
 
 If you're using this module, and need help, you can:
 
@@ -17,6 +17,23 @@ If you're using this module, and need help, you can:
 - Tweet to [@senecajs][],
 - Ask on the [Gitter][gitter-url].
 
+If you are new to Seneca in general, please take a look at [senecajs.org][]. We have everything from
+tutorials to sample apps to help get you up and running quickly.
+
+## Install
+To install, simply use npm. Remember you will need to install [Seneca.js][] if you haven't already.
+
+```
+npm install seneca
+npm install seneca-beanstalk-transport
+```
+
+## Test
+To run tests, simply use npm:
+
+```
+npm run test
+```
 
 ## Dependencies
 
@@ -24,9 +41,15 @@ In order to use this transport, you need to have a [beanstalkd](http://kr.github
 
 To install, please report to [beanstalkd install page](http://kr.github.io/beanstalkd/download.html).
 
+## Contributing
+The [Senecajs org][] encourage open participation. If you feel you can help in any way, be it with
+documentation, examples, extra testing, or new features please get in touch.
+
+## License
+Copyright Richard Rodger and other contributors 2015, Licensed under [MIT][].
 
 [travis-badge]: https://travis-ci.org/rjrodger/seneca-beanstalk-transport.svg
-[travis-url]: https://travis-ci.org/srjrodger/seneca-beanstalk-transport
+[travis-url]: https://travis-ci.org/rjrodger/seneca-beanstalk-transport
 [gitter-badge]: https://badges.gitter.im/Join%20Chat.svg
 [gitter-url]: https://gitter.im/senecajs/seneca
 [standard-badge]: https://raw.githubusercontent.com/feross/standard/master/badge.png
