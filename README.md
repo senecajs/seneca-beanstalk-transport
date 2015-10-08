@@ -7,6 +7,9 @@
 
 [![js-standard-style][standard-badge]][standard-style]
 
+A transport module that uses [beanstalkd][] as it's engine. It may also be used as an example on how to
+implement a transport plugin for Seneca.
+
 - __Version:__ 0.2.1
 - __Tested on:__ Seneca 0.7.1
 - __Node:__ 0.10, 0.11, 0.12, 4
@@ -28,6 +31,9 @@ npm install seneca
 npm install seneca-beanstalk-transport
 ```
 
+In order to use this transport, you need to have a [beanstalkd][] daemon running. The deamon
+and instructions on how to install can be found on the beanstalkd [install page][].
+
 ## Test
 To run tests, simply use npm:
 
@@ -35,14 +41,8 @@ To run tests, simply use npm:
 npm run test
 ```
 
-## Dependencies
-
-In order to use this transport, you need to have a [beanstalkd](http://kr.github.io/beanstalkd/) daemon running.
-
-To install, please report to [beanstalkd install page](http://kr.github.io/beanstalkd/download.html).
-
 ## Contributing
-The [Senecajs org][] encourage open participation. If you feel you can help in any way, be it with
+The [Senecajs org][] encourages open participation. If you feel you can help in any way, be it with
 documentation, examples, extra testing, or new features please get in touch.
 
 ## License
@@ -54,6 +54,9 @@ Copyright Richard Rodger and other contributors 2015, Licensed under [MIT][].
 [gitter-url]: https://gitter.im/senecajs/seneca
 [standard-badge]: https://raw.githubusercontent.com/feross/standard/master/badge.png
 [standard-style]: https://github.com/feross/standard
+
+[beanstalkd]: http://kr.github.io/beanstalkd/
+[install page]: http://kr.github.io/beanstalkd/download.html
 
 [MIT]: ./LICENSE
 [Senecajs org]: https://github.com/senecajs/
