@@ -46,10 +46,10 @@ The [Senecajs org][] encourages open participation. If you feel you can help in 
 documentation, examples, extra testing, or new features please get in touch.
 
 ## License
-Copyright Richard Rodger and other contributors 2015, Licensed under [MIT][].
+Copyright Richard Rodger and other contributors 2014-2016, Licensed under [MIT][].
 
-[travis-badge]: https://travis-ci.org/rjrodger/seneca-beanstalk-transport.svg
-[travis-url]: https://travis-ci.org/rjrodger/seneca-beanstalk-transport
+[travis-badge]: https://travis-ci.org/senecajs/seneca-beanstalk-transport.svg
+[travis-url]: https://travis-ci.org/senecajs/seneca-beanstalk-transport
 [gitter-badge]: https://badges.gitter.im/Join%20Chat.svg
 [gitter-url]: https://gitter.im/senecajs/seneca
 [standard-badge]: https://raw.githubusercontent.com/feross/standard/master/badge.png
