@@ -63,5 +63,5 @@ Copyright Richard Rodger and other contributors 2014-2016, Licensed under [MIT][
 [Seneca.js]: https://www.npmjs.com/package/seneca
 [senecajs.org]: http://senecajs.org/
 [leveldb]: http://leveldb.org/
-[github issue]: https://github.com/rjrodger/seneca-beanstalk-transport/issues
+[github issue]: https://github.com/senecajs/seneca-beanstalk-transport/issues
 [@senecajs]: http://twitter.com/senecajs
