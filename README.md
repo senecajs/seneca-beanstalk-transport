@@ -11,8 +11,7 @@ A transport module that uses [beanstalkd][] as it's engine. It may also be used 
 implement a transport plugin for Seneca.
 
 - __Version:__ 0.2.1
-- __Tested on:__ Seneca 0.7.1
-- __Node:__ 0.10, 0.11, 0.12, 4
+- __Node:__ 4, 6
 
 If you're using this module, and need help, you can:
 
@@ -22,6 +21,10 @@ If you're using this module, and need help, you can:
 
 If you are new to Seneca in general, please take a look at [senecajs.org][]. We have everything from
 tutorials to sample apps to help get you up and running quickly.
+
+### Seneca compatibility
+
+Supports Seneca versions **1.x** - **3.x**
 
 ## Install
 To install, simply use npm. Remember you will need to install [Seneca.js][] if you haven't already.
@@ -63,5 +66,5 @@ Copyright Richard Rodger and other contributors 2014-2016, Licensed under [MIT][
 [Seneca.js]: https://www.npmjs.com/package/seneca
 [senecajs.org]: http://senecajs.org/
 [leveldb]: http://leveldb.org/
-[github issue]: https://github.com/rjrodger/seneca-beanstalk-transport/issues
+[github issue]: https://github.com/senecajs/seneca-beanstalk-transport/issues
 [@senecajs]: http://twitter.com/senecajs
