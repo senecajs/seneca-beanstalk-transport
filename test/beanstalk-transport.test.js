@@ -3,18 +3,18 @@
 
 var Lab = require('lab')
 
-var lab = exports.lab = Lab.script()
+var lab = (exports.lab = Lab.script())
 var describe = lab.describe
 var it = lab.it
 
 var test = require('seneca-transport-test')
 
-describe('beanstalk-transport', function () {
-  it('happy-any', function (fin) {
+describe('beanstalk-transport', function() {
+  it('happy-any', function(fin) {
     test.foo_test('', require, fin, 'beanstalk', -11300)
   })
 
-  it('happy-pin', function (fin) {
+  it('happy-pin', function(fin) {
     test.foo_pintest('', require, fin, 'beanstalk', -11300)
   })
 })
