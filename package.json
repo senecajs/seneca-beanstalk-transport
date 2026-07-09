@@ -1,5 +1,5 @@
 {
-  "name": "seneca-beanstalk-transport",
+  "name": "@seneca/beanstalk-transport",
   "version": "0.2.1",
   "description": "Seneca beanstalk transport",
   "main": "lib/index.js",
