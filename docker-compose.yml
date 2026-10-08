@@ -1,0 +1,23 @@
+# Local services for the tests: `npm run services:up` / `npm run services:down`.
+# There is no official beanstalkd image, so beanstalkd is installed from the
+# Alpine package repository (apk verifies package signatures).
+name: seneca-beanstalk-transport
+
+services:
+  beanstalkd:
+    image: alpine:3.24
+    container_name: seneca-beanstalk-transport-beanstalkd
+    command:
+      - sh
+      - -c
+      - >-
+        sed -i 's/^https:/http:/' /etc/apk/repositories &&
+        apk add --no-cache beanstalkd &&
+        exec beanstalkd -l 0.0.0.0 -p 11300
+    ports:
+      - '11400:11300'
+    healthcheck:
+      test: ['CMD', 'nc', '-z', '127.0.0.1', '11300']
+      interval: 5s
+      timeout: 5s
+      retries: 20
