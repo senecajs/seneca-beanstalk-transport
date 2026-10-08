@@ -1,79 +1,96 @@
 ![Seneca](http://senecajs.org/files/assets/seneca-logo.png)
-> A [Seneca.js][] plugin
+> A [Seneca.js](https://www.npmjs.com/package/seneca) plugin
 
 # @seneca/beanstalk-transport
+
+A Seneca transport that carries messages between services through
+[beanstalkd](https://beanstalkd.github.io/) work queues, using the
+[fivebeans](https://github.com/ceejbot/fivebeans) client. It works with
+Seneca 3 and Seneca 4 (tested with `4.0.0-rc5` and 4.0.0), on Node 24 and 22.
+The package is published on npm as `seneca-beanstalk-transport`.
+
+[![npm version](https://img.shields.io/npm/v/seneca-beanstalk-transport.svg)](https://npmjs.com/package/seneca-beanstalk-transport)
 
 | ![Voxgig](https://www.voxgig.com/res/img/vgt01r.png) | This open source module is sponsored and supported by [Voxgig](https://www.voxgig.com). |
 |---|---|
 
 ## Install
 
-To install, simply use npm. Remember you will need to install [Seneca.js][] if you haven't already.
-
-```
-npm install seneca
-npm install seneca-beanstalk-transport
+```sh
+npm install seneca seneca-transport seneca-beanstalk-transport
 ```
 
-In order to use this transport, you need to have a [beanstalkd][] daemon running. The deamon
-and instructions on how to install can be found on the beanstalkd [install page][].
+You need a running beanstalkd. For local work `npm run services:up` in this
+repository starts one in Docker on port 11400.
 
 ## Quick Example
 
 ```js
-require('seneca')()
+const Seneca = require('seneca')
+
+Seneca()
+  .use('seneca-transport') // required on Seneca 4
   .use('seneca-beanstalk-transport')
-  .listen({ type: 'beanstalk', pin: 'role:create' })
+  .add('role:math,cmd:sum', (msg, reply) => reply({ answer: msg.left + msg.right }))
+  .listen({ type: 'beanstalk', host: '127.0.0.1', port: 11300, pin: 'role:math,cmd:*' })
 ```
+
+A client uses `.client({ type: 'beanstalk', ... })` with the same host, port
+and pin. The full program is in the
+[getting started tutorial](docs/tutorials/getting-started.md).
 
 ## More Examples
 
-See [test/](test/) for usage examples.
+* [Getting started](docs/tutorials/getting-started.md): a service and a client over beanstalkd.
+* [Configure the connection](docs/how-to/configure-the-connection.md)
+* [Migrate from Seneca 3](docs/how-to/migrate-from-seneca-3.md)
+* [Run the tests locally](docs/how-to/run-the-tests-locally.md)
 
 ## Motivation
 
-Provides Beanstalk transport for Seneca microservice messages.
+beanstalkd is a small, fast work queue. Using it as a Seneca transport lets
+services exchange messages through queues instead of direct HTTP calls:
+a request waits in a beanstalkd tube until a listener reserves it. See
+[How it works](docs/explanation/how-it-works.md).
 
 ## Support
 
-If you're using this module and need help, you can:
-
-- Post a [github issue][]
-- Tweet to [@senecajs][]
+* Post a [GitHub issue](https://github.com/senecajs/seneca-beanstalk-transport/issues).
+* Read the [Seneca documentation](https://senecajs.org).
+* The plugin is supported by [Voxgig](https://www.voxgig.com).
 
 ## API
 
-See [seneca-transport](https://github.com/senecajs/seneca-transport) for configuration.
+| Item | Summary | Reference |
+| ---- | ------- | --------- |
+| Transport types | `beanstalk`, and the legacy alias `queue` | [messages.md](docs/reference/messages.md) |
+| Options | `beanstalk.host`, `port`, `priority`, `delay`, `alivetime`, ... | [options.md](docs/reference/options.md) |
+| Errors | no error codes; connection errors are fatal | [errors.md](docs/reference/errors.md) |
 
 ## Contributing
 
-The [Senecajs org][] encourages open participation. If you feel you can help in any way, be it with documentation, examples, extra testing, or new features please get in touch.
-
-### Running tests
+Tests need beanstalkd and Docker:
 
 ```sh
-npm run test
+npm install
+npm run services:up      # beanstalkd on 127.0.0.1:11400
+npm test                 # node:test, Node 24 or 22
+npm run services:down
 ```
+
+The devDependency is the Seneca 4 prerelease (`seneca@^4.0.0-rc5`). See
+[Run the tests locally](docs/how-to/run-the-tests-locally.md). The CI workflow
+is delivered as a patch in [.patches](.patches/README.md).
 
 ## Background
 
-Uses the [fivebeans](https://github.com/ceejbot/fivebeans) client.
+This plugin was written in 2014 for Seneca 0.x and has been kept working with
+later Seneca versions.
 
-[![Build Status][travis-badge]][travis-url]
-[![Gitter][gitter-badge]][gitter-url]
-[![js-standard-style][standard-badge]][standard-style]
-[travis-badge]: https://travis-ci.org/senecajs/seneca-beanstalk-transport.svg
-[travis-url]: https://travis-ci.org/senecajs/seneca-beanstalk-transport
-[gitter-badge]: https://badges.gitter.im/Join%20Chat.svg
-[gitter-url]: https://gitter.im/senecajs/seneca
-[standard-badge]: https://raw.githubusercontent.com/feross/standard/master/badge.png
-[standard-style]: https://github.com/feross/standard
-[beanstalkd]: http://kr.github.io/beanstalkd/
-[install page]: http://kr.github.io/beanstalkd/download.html
-[MIT]: ./LICENSE
-[Senecajs org]: https://github.com/senecajs/
-[Seneca.js]: https://www.npmjs.com/package/seneca
-[senecajs.org]: http://senecajs.org/
-[leveldb]: http://leveldb.org/
-[github issue]: https://github.com/senecajs/seneca-beanstalk-transport/issues
-[@senecajs]: http://twitter.com/senecajs
+| Plugin | Seneca | Node |
+| ------ | ------ | ---- |
+| 0.3.x  | 3.x and 4.x (needs `seneca-transport` on 4) | 22, 24 |
+| 0.2.x  | 1.x to 3.x | 4, 6 |
+
+Changes are listed in [CHANGES.md](CHANGES.md). Licensed under
+[MIT](LICENSE).
