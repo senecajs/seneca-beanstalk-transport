@@ -15,7 +15,7 @@ Goal: connect the transport to your beanstalkd and set job parameters.
    `beanstalk` key:
 
    ```js
-   seneca.use('seneca-beanstalk-transport', {
+   seneca.use('@seneca/beanstalk-transport', {
      beanstalk: { priority: 10, delay: 0, alivetime: 60 }
    })
    ```

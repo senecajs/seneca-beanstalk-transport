@@ -1,4 +1,4 @@
-# seneca-beanstalk-transport documentation
+# @seneca/beanstalk-transport documentation
 
 ## Tutorials
 
@@ -44,7 +44,7 @@
 | `role:transport,hook:client,type:beanstalk` | action | [messages.md](reference/messages.md#roletransporthookclienttypebeanstalk) |
 | `role:transport,hook:listen,type:queue` | action (legacy alias) | [messages.md](reference/messages.md#legacy-type-queue) |
 | `role:transport,hook:client,type:queue` | action (legacy alias) | [messages.md](reference/messages.md#legacy-type-queue) |
-| close hook `sys:seneca,cmd:close` / `role:seneca,cmd:close` | action override | [messages.md](reference/messages.md#close-hook) |
+| close hook `sys:seneca,cmd:close` | action override | [messages.md](reference/messages.md#close-hook) |
 | plugin name `beanstalk-transport` | export | [messages.md](reference/messages.md#plugin-name-and-exports) |
 | fatal connection errors (`seneca.die`) | error | [errors.md](reference/errors.md) |
-| missing `transport/utils` | error | [errors.md](reference/errors.md#missing-seneca-transport) |
+| missing `transport/utils` | error | [errors.md](reference/errors.md#missing-senecatransport) |

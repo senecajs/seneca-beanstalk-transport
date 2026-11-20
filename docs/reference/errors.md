@@ -16,20 +16,21 @@ Every fivebeans error (connection refused, `use`, `watch`, `reserve`, `put`,
 So an unreachable beanstalkd stops the process. Start beanstalkd before the
 service.
 
-## Missing seneca-transport
+## Missing @seneca/transport
 
-On Seneca 4, when `seneca-transport` was not loaded first, the plugin
+When `@seneca/transport` was not loaded first, the plugin
 definition throws and Seneca reports a fatal `plugin_define_failed` whose
 message contains:
 
 ```
-beanstalk-transport: transport/utils not found; call seneca.use('seneca-transport') before this plugin
+beanstalk-transport: transport/utils not found; call seneca.use('@seneca/transport') before this plugin
 ```
 
 Seneca 4 core exports its own smaller `transport/utils`; the plugin checks for
-`listen_topics` and `make_client`, which only seneca-transport provides.
+`listen_topics` and `make_client`, which only `@seneca/transport` provides.
 
 ## Remote action errors
 
-Errors replied by remote actions are carried back by seneca-transport and
-reach the `act` callback as on any other transport.
+Errors replied by remote actions are carried back by `@seneca/transport`
+and reach the `act` callback with their own `code` and `message`, as on
+any other transport.

@@ -2,14 +2,11 @@
 
 Goal: run `npm test` against a real beanstalkd.
 
-1. Use Node 24 (or 22) and install:
+1. Use Node 24 or later and install:
 
    ```sh
    npm install
    ```
-
-   `.npmrc` sets `legacy-peer-deps=true` because `seneca-transport` declares
-   `peer seneca >=3`, which excludes the Seneca 4 prerelease.
 
 2. Start beanstalkd:
 
@@ -34,8 +31,12 @@ Goal: run `npm test` against a real beanstalkd.
    | `SENECA_TEST_BEANSTALK_PORT` | `11400` | beanstalkd port |
 
 4. Optionally test against another Seneca build, for example
-   `npm install --no-save <path>/seneca-4.0.0.tgz && npm test`, then
+   `npm install --no-save <path>/seneca-4.x.y.tgz && npm test`, then
    `npm install` to restore the devDependency.
+
+   The tests expect empty tubes. If a run was interrupted, restart
+   beanstalkd (`npm run services:down` then `npm run services:up`) so that
+   no stale reply jobs are left in the tubes.
 
 5. Stop beanstalkd:
 
