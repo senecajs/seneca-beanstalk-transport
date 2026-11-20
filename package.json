@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/senecajs/seneca-beanstalk-transport.git"
+    "url": "git+https://github.com/senecajs/seneca-beanstalk-transport.git"
   },
   "keywords": [
     "seneca",
@@ -21,12 +21,11 @@
   "license": "MIT",
   "dependencies": {
     "fivebeans": "~1.5.0",
-    "lodash": "4.15.0",
     "nid": "~0.3.2"
   },
   "devDependencies": {
-    "seneca": "^4.0.0-rc5",
-    "seneca-transport": "^8.3.0"
+    "@seneca/transport": "^9.0.0",
+    "seneca": "^4.0.0"
   },
   "files": [
     "README.md",
@@ -35,12 +34,13 @@
     "lib"
   ],
   "peerDependencies": {
-    "seneca": ">=3 || >=4.0.0-rc5",
-    "seneca-transport": ">=8"
+    "@seneca/transport": "^9.0.0",
+    "seneca": "^4.0.0"
   },
-  "peerDependenciesMeta": {
-    "seneca-transport": {
-      "optional": true
-    }
+  "engines": {
+    "node": ">=24"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

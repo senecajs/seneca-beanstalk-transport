@@ -25,13 +25,22 @@ function foo_plugin () {
   this.add('faf:1', function (msg, reply) { fafmap[msg.k] = msg.v; reply() })
   this.add('role:a,cmd:1', function (msg, reply) { reply({ out: 'a1-' + msg.bar }) })
   this.add('role:b,cmd:2', function (msg, reply) { reply({ out: 'b2-' + msg.bar }) })
+  this.add('slow:1', function (msg, reply) {
+    // Later messages reply sooner, so that replies overtake each other.
+    setTimeout(function () { reply({ out: 'slow-' + msg.i }) }, 100 - 10 * msg.i)
+  })
+  this.add('fail:1', function (msg, reply) {
+    const err = new Error('fail-' + msg.bar)
+    err.code = 'foo_failed'
+    reply(err)
+  })
 }
 
 function make_seneca () {
   return Seneca({ log: 'silent' })
     .test()
     .quiet()
-    .use('seneca-transport')
+    .use('@seneca/transport')
     .use(require('..'))
 }
 
@@ -98,6 +107,57 @@ describe('beanstalk-transport', function () {
           client.act('role:b,cmd:2,bar:BB', function (err, out) {
             if (err) return done(err)
             assert.equal('{"out":"b2-BB"}', JSON.stringify(out))
+            done()
+          })
+        })
+      })
+    })
+  })
+
+  // Several acts in flight at once: each reply must reach its own callback.
+  // On Seneca 4 this needs the meta argument of the client's send function.
+  it('concurrent', { timeout: 11111 }, function (t, fin) {
+    const service = foo_service(make_seneca())
+    service.ready(function () {
+      const client = make_seneca().client({ type: 'beanstalk', host: HOST, port: PORT })
+      client.ready(function () {
+        const done = (err) => err ? fin(err) : close_all(client, service, fin)
+        const n = 5
+        const outs = []
+        let count = 0
+        for (let i = 0; i < n; i++) {
+          client.act('slow:1', { i: i }, function (err, out) {
+            if (err) return done(err)
+            outs[i] = out && out.out
+            if (n === ++count) {
+              try {
+                assert.deepEqual(outs, ['slow-0', 'slow-1', 'slow-2', 'slow-3', 'slow-4'])
+              } catch (e) { return done(e) }
+              done()
+            }
+          })
+        }
+      })
+    })
+  })
+
+  it('remote-error', { timeout: 11111 }, function (t, fin) {
+    const service = foo_service(make_seneca())
+    service.ready(function () {
+      const client = make_seneca().client({ type: 'beanstalk', host: HOST, port: PORT })
+      client.ready(function () {
+        const done = (err) => err ? fin(err) : close_all(client, service, fin)
+        client.act('fail:1,bar:C', function (err, out) {
+          try {
+            assert.ok(err, 'expected an error')
+            assert.equal(err.code, 'foo_failed')
+            assert.match(err.message, /fail-C/)
+          } catch (e) { return done(e) }
+
+          // The service keeps answering after the error.
+          client.act('foo:1,bar:D', function (err, out) {
+            if (err) return done(err)
+            assert.equal('{"dee":"1-D"}', JSON.stringify(out))
             done()
           })
         })
