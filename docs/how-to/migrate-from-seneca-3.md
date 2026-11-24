@@ -2,14 +2,21 @@
 
 Goal: run an existing beanstalk service on Seneca 4.
 
-1. Upgrade to `seneca-beanstalk-transport` 0.3.0 or later. Earlier versions
-   register their close hook on `role:seneca,cmd:close`, which Seneca
-   4.0.0-rc5 never calls, so connections stay open after `close()`.
-2. Install and load `seneca-transport` before this plugin. Seneca 3 had it
-   built in; Seneca 4 does not.
+1. Install `@seneca/beanstalk-transport` 0.3.0 or later, the Seneca 4
+   version of `seneca-beanstalk-transport`, and remove the old package.
+   Versions up to 0.2.1 register their close hook on
+   `role:seneca,cmd:close`, and their clients do not pass the message
+   meta data that Seneca 4 needs to match concurrent replies. Seneca 3
+   users stay on `seneca-beanstalk-transport@0.2`.
+
+   ```sh
+   npm install seneca@^4 @seneca/transport @seneca/beanstalk-transport
+   ```
+2. Load `@seneca/transport` (the Seneca 4 version of seneca-transport)
+   before this plugin. Seneca 3 had it built in; Seneca 4 does not.
 
    ```js
-   Seneca().use('seneca-transport').use('seneca-beanstalk-transport')
+   Seneca().use('@seneca/transport').use('@seneca/beanstalk-transport')
    ```
 
    Without it, Seneca stops with a fatal `plugin_define_failed` error

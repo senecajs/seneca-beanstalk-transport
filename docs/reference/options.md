@@ -3,7 +3,7 @@
 Plugin options live under the `beanstalk` key:
 
 ```js
-seneca.use('seneca-beanstalk-transport', { beanstalk: { priority: 100 } })
+seneca.use('@seneca/beanstalk-transport', { beanstalk: { priority: 100 } })
 ```
 
 For each `listen` or `client` call the plugin builds its settings as
@@ -53,5 +53,5 @@ still applies to remote calls.
 ## Call arguments
 
 Besides the options above, `listen` and `client` accept the usual
-seneca-transport arguments, in particular `pin` (or `pins`), which selects
+`@seneca/transport` arguments, in particular `pin` (or `pins`), which selects
 the tube names. See [Messages](messages.md#tube-names).

@@ -1,7 +1,7 @@
 # Messages
 
 The plugin adds transport hooks that Seneca's `listen` and `client` call
-through `seneca-transport`. You do not call these patterns directly.
+through `@seneca/transport`. You do not call these patterns directly.
 
 ## role:transport,hook:listen,type:beanstalk
 
@@ -33,7 +33,7 @@ Called by `seneca.client({ type: 'beanstalk', ... })`.
 
 ## Tube names
 
-Topics come from seneca-transport `listen_topics` / `make_client`: the
+Topics come from `@seneca/transport` `listen_topics` / `make_client`: the
 prefix `seneca_` plus `any` when there is no pin, or the sorted pin keys and
 values with non word characters replaced by `_`.
 
@@ -45,8 +45,8 @@ values with non word characters replaced by `_`.
 ## Close hook
 
 Each connection adds an override of the close pattern
-(`sys:seneca,cmd:close` on Seneca 4, `role:seneca,cmd:close` on Seneca 3)
-that marks the connection closed, ends it, and calls `prior`.
+`sys:seneca,cmd:close` that marks the connection closed, ends it, and
+calls `prior`.
 
 ## Plugin name and exports
 

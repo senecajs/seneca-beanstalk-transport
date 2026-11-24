@@ -6,10 +6,12 @@
 A Seneca transport that carries messages between services through
 [beanstalkd](https://beanstalkd.github.io/) work queues, using the
 [fivebeans](https://github.com/ceejbot/fivebeans) client. It works with
-Seneca 3 and Seneca 4 (tested with `4.0.0-rc5` and 4.0.0), on Node 24 and 22.
-The package is published on npm as `seneca-beanstalk-transport`.
+Seneca 4 (tested with 4.0.0) on Node 24 or later. From version 0.3.0 the
+package is published on npm as `@seneca/beanstalk-transport`; versions up
+to 0.2.1 were published as `seneca-beanstalk-transport` and support
+Seneca 3.
 
-[![npm version](https://img.shields.io/npm/v/seneca-beanstalk-transport.svg)](https://npmjs.com/package/seneca-beanstalk-transport)
+[![npm version](https://img.shields.io/npm/v/@seneca/beanstalk-transport.svg)](https://npmjs.com/package/@seneca/beanstalk-transport)
 
 | ![Voxgig](https://www.voxgig.com/res/img/vgt01r.png) | This open source module is sponsored and supported by [Voxgig](https://www.voxgig.com). |
 |---|---|
@@ -17,7 +19,7 @@ The package is published on npm as `seneca-beanstalk-transport`.
 ## Install
 
 ```sh
-npm install seneca seneca-transport seneca-beanstalk-transport
+npm install seneca@^4 @seneca/transport @seneca/beanstalk-transport
 ```
 
 You need a running beanstalkd. For local work `npm run services:up` in this
@@ -29,8 +31,8 @@ repository starts one in Docker on port 11400.
 const Seneca = require('seneca')
 
 Seneca()
-  .use('seneca-transport') // required on Seneca 4
-  .use('seneca-beanstalk-transport')
+  .use('@seneca/transport') // load before this plugin
+  .use('@seneca/beanstalk-transport')
   .add('role:math,cmd:sum', (msg, reply) => reply({ answer: msg.left + msg.right }))
   .listen({ type: 'beanstalk', host: '127.0.0.1', port: 11300, pin: 'role:math,cmd:*' })
 ```
@@ -74,11 +76,11 @@ Tests need beanstalkd and Docker:
 ```sh
 npm install
 npm run services:up      # beanstalkd on 127.0.0.1:11400
-npm test                 # node:test, Node 24 or 22
+npm test                 # node:test, Node 24 or later
 npm run services:down
 ```
 
-The devDependency is the Seneca 4 prerelease (`seneca@^4.0.0-rc5`). See
+The devDependencies are `seneca` `^4.0.0` and `@seneca/transport` `^9.0.0`. See
 [Run the tests locally](docs/how-to/run-the-tests-locally.md). The CI workflow
 is delivered as a patch in [.patches](.patches/README.md).
 
@@ -89,8 +91,8 @@ later Seneca versions.
 
 | Plugin | Seneca | Node |
 | ------ | ------ | ---- |
-| 0.3.x  | 3.x and 4.x (needs `seneca-transport` on 4) | 22, 24 |
-| 0.2.x  | 1.x to 3.x | 4, 6 |
+| 0.3.x (`@seneca/beanstalk-transport`) | 4.x (needs `@seneca/transport`) | 24 or later |
+| 0.2.x (`seneca-beanstalk-transport`) | 1.x to 3.x | 4, 6 |
 
 Changes are listed in [CHANGES.md](CHANGES.md). Licensed under
 [MIT](LICENSE).
