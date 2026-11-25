@@ -1,0 +1,51 @@
+name: build
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [master, main]
+  pull_request:
+    branches: [master, main]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [24.x, 26.x]
+
+    env:
+      SENECA_TEST_BEANSTALK_HOST: 127.0.0.1
+      SENECA_TEST_BEANSTALK_PORT: 11400
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      # There is no official beanstalkd image, and service containers cannot
+      # override the image command, so beanstalkd runs from the same Alpine
+      # image and command as docker-compose.yml, with a wait for health.
+      - name: Start beanstalkd
+        run: |
+          docker run -d --name beanstalkd -p 11400:11300 \
+            --health-cmd "nc -z 127.0.0.1 11300" --health-interval 5s \
+            --health-timeout 5s --health-retries 20 \
+            alpine:3.24 sh -c "apk add --no-cache beanstalkd && exec beanstalkd -l 0.0.0.0 -p 11300"
+          for i in $(seq 1 60); do
+            [ "$(docker inspect -f '{{.State.Health.Status}}' beanstalkd)" = healthy ] && exit 0
+            sleep 2
+          done
+          docker logs beanstalkd
+          exit 1
+
+      - run: npm install
+      - run: npm run build --if-present
+      - run: npm test
